@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Weather</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
+
+</head>
+<body>
+<!--<h1 id="localTemp"></h1>-->
+
+<div class="row" height="100%">
+
+    <div class="col l6">
+        <h1 id="userLocation">Accessing Location...</h1>
+        <h2 id="localTemp"></h2>
+    </div>
+    <div class="col l6" id="mapContainer">
+        <!--<div id="googleMap" style="height:-webkit-fill-available;width:100%;"></div>-->
+        </iframe>
+    </div>
+</div>
+
+
+
+</body>
+<style>
+    iframe {
+        height: -webkit-fill-available;
+        width: 100%;;
+    }
+    body {
+        background-color: #380000;
+        color: #fff;
+    }
+</style>
+<script>
+    function getTemp(xPos, yPos) {
+        var url = "https://cors.io/?https://api.darksky.net/forecast/c05288275ec7f1202079d9cdd919c3e9/" + xPos + "," + yPos;
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", url, false);
+        xhr.send();
+
+        var info = JSON.parse(xhr.responseText);
+
+        return Math.round(info.currently.temperature);
+
+    }
+
+    function displayTemp() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                var loc = {
+                    lat: position.coords.latitude,
+                    long: position.coords.longitude,
+                };
+                document.getElementById("localTemp").innerHTML = getTemp(loc.lat, loc.long) + " degrees";
+            });
+        } else {
+            document.getElementById("localTemp").innerHTML = "Unable to get user location";
+        }
+    }
+
+    function displayLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                var loc = {
+                    lat: position.coords.latitude,
+                    long: position.coords.longitude,
+                };
+                var url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + loc.lat + "," + loc.long + "&key=AIzaSyCcrc4Mr1pm8LDaa23Xw1gwvmD9UImtedM&json";
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", url, false);
+                xhr.send();
+                var info = JSON.parse(xhr.responseText);
+                var name = info.results[0].address_components[2].long_name;
+                document.getElementById("userLocation").innerHTML = "In " + name + " it is ";
+                document.getElementById("mapContainer").innerHTML = "<iframe src=\"https://www.google.com/maps/embed/v1/place?key=AIzaSyCcrc4Mr1pm8LDaa23Xw1gwvmD9UImtedM&q=" + loc.lat + "," + loc.long +  "&zoom=10\">";
+            });
+        } else {
+            document.getElementById("localTemp").innerHTML = "Unable to get user location";
+        }
+    }
+
+    displayLocation();
+    displayTemp();
+
+
+</script>
+</html>
+
